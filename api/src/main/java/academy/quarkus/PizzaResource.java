@@ -1,5 +1,8 @@
 package academy.quarkus;
 
+import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.event.Observes;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -9,13 +12,18 @@ import java.util.List;
 
 @Path("/pizzas")
 public class PizzaResource {
+    @Transactional
+    public void init(@Observes StartupEvent ev){
+        var muzz = new Pizza("Mozzarella");
+        muzz.persist();
+        var mush = new Pizza("Mushrooms");
+        mush.persist();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String hello() {
-        var muzz = new Pizza("Mozzarella");
-        var mush = new Pizza("Mushrooms");
-        var pizzas = List.of(muzz, mush);
-        return pizzas;
+    @Transactional
+    public List<Pizza> hello() {
+        return Pizza.listAll();
     }
 }
